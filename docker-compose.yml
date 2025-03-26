@@ -1,0 +1,41 @@
+networks:
+  default:
+    name: lambda-in-docker-compose_default
+
+services:
+  sam-local:
+    build:
+      context: ./docker/sam-local
+    volumes:
+      - ./service/function:/var/function:delegated
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $PWD:$PWD
+    working_dir: /var/function
+    command: >
+      sh -c "sam local start-lambda --debug
+      --docker-volume-basedir=$PWD/service/function
+      --host 0.0.0.0 
+      --docker-network lambda-in-docker-compose_default 
+      --container-host host.docker.internal"
+    environment:
+      - AWS_ACCESS_KEY_ID=anything
+      - AWS_SECRET_ACCESS_KEY=anything
+      - AWS_DEFAULT_REGION=eu-central-1
+      - SAM_CLI_TELEMETRY=0
+      - SAM_CLI_CONTAINER_CONNECTION_TIMEOUT=60
+      - SAM_DEBUG=1
+    # Ensure host lookup works
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    privileged: true
+    networks:
+      default:
+        aliases:
+          - lambda.local
+    # Use netcat to check if port 3001 is listening
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z localhost 3001"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
