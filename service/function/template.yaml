@@ -12,6 +12,23 @@ Parameters:
     Description: Environment name for resource naming
 
 Resources:
+
+#  DeploymentBucket:
+#    Type: AWS::S3::Bucket
+#    Properties:
+#      BucketName: !Sub "${AWS::StackName}-deployment"
+#      VersioningConfiguration:
+#        Status: Enabled
+#      LifecycleConfiguration:
+#        Rules:
+#          - Id: DeleteOldVersions
+#            Status: Enabled
+#            NoncurrentVersionExpiration:
+#              NoncurrentDays: 90
+#      Tags:
+#        - Key: Environment
+#          Value: !Ref Environment
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -21,11 +38,11 @@ Resources:
       Runtime: nodejs18.x
       Timeout: 10
 
-  SayHelloWorldFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${Environment}-function-SayHelloWorldFunction"
-      CodeUri: say-hello-world/
-      Handler: index.handler
-      Runtime: nodejs18.x
-      Timeout: 10
+#  SayHelloWorldFunction:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      FunctionName: !Sub "${Environment}-function-SayHelloWorldFunction"
+#      CodeUri: say-hello-world/
+#      Handler: test.handler
+#      Runtime: nodejs18.x
+#      Timeout: 10
